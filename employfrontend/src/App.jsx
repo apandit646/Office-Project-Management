@@ -1,0 +1,51 @@
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
+import { useCallback, useEffect, useState } from "react";
+import ManagerInterfaceNavbar from "./common/ManagerInterfaceNavbar";
+import RegisterNavbar from "./common/RegiesterNavbar"; // Typo fixed
+import HomeManager from "./components/HomeManager";
+import ResLogin from "./components/RegLogin";
+
+function App() {
+  const getToken = () => localStorage.getItem("token");
+
+  const [isLoggedIn, setIsLoggedIn] = useState(() => !!getToken());
+
+  const checkAuth = useCallback(() => {
+    setIsLoggedIn(!!getToken());
+  }, []);
+
+  useEffect(() => {
+    window.addEventListener("storage", checkAuth);
+    return () => window.removeEventListener("storage", checkAuth);
+  }, [checkAuth]);
+
+  return (
+    <BrowserRouter>
+      {isLoggedIn ? (
+        <ManagerInterfaceNavbar setIsLoggedIn={setIsLoggedIn} />
+      ) : (
+        <RegisterNavbar setIsLoggedIn={setIsLoggedIn} />
+      )}
+
+      <Routes>
+        {isLoggedIn ? (
+          <>
+            <Route path="/home" element={<HomeManager />} />
+            <Route path="*" element={<Navigate to="/home" replace />} />
+          </>
+        ) : (
+          <>
+            <Route
+              path="/"
+              element={<ResLogin setIsLoggedIn={setIsLoggedIn} />}
+            />
+
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </>
+        )}
+      </Routes>
+    </BrowserRouter>
+  );
+}
+
+export default App;
