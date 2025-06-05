@@ -1,11 +1,7 @@
-
-const db = require('../db/config');
 const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
 const sequelize = require('../db/config'); // Assuming you have a Sequelize instance set up
 const User = require('../model/userModel');
-const exp = require('constants');
-
 const algorithm = 'HS256';
 const secretKey = crypto.createHash('sha256').update(String('your-secret-key')).digest('base64').substr(0, 32);
 const iv = crypto.createHash('sha256').update(String('your-fixed-iv')).digest('base64').substr(0, 16);
