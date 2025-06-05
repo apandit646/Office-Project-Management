@@ -8,7 +8,6 @@ export const AddProject = () => {
     endDate: "",
     status: "ongoing",
     description: "",
-    managerId: "",
   });
 
   const handleChange = (e) => {
@@ -19,10 +18,58 @@ export const AddProject = () => {
     }));
   };
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
     console.log(projectData);
+    if (
+      !projectData.projectName ||
+      !projectData.clientName ||
+      !projectData.startDate ||
+      !projectData.endDate
+    ) {
+      alert("Please fill in all required fields.");
+      return;
+    }
+    if (new Date(projectData.startDate) > new Date(projectData.endDate)) {
+      alert("End date cannot be earlier than start date.");
+      return;
+    }
+    if (!localStorage.getItem("token")) {
+      alert("You must be logged in to add a project.");
+      return;
+    }
+
     // Add submission logic here
+    await fetch("http://localhost:3000/api/project/regProject", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${localStorage.getItem("token")}`, // ✅ standard format
+      },
+      body: JSON.stringify({
+        ...projectData,
+      }),
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        if (data.error) {
+          alert(data.error);
+        } else {
+          alert("Project added successfully!");
+          setProjectData({
+            projectName: "",
+            clientName: "",
+            startDate: "",
+            endDate: "",
+            status: "ongoing",
+            description: "",
+          });
+        }
+      })
+      .catch((error) => {
+        console.error("Error:", error);
+        alert("Failed to add project. Please try again.");
+      });
   };
 
   return (
@@ -148,26 +195,6 @@ export const AddProject = () => {
             className="peer-focus:font-medium absolute text-sm text-gray-500 transform -translate-y-6 scale-75 top-3 -z-10"
           >
             Description
-          </label>
-        </div>
-
-        {/* Manager ID */}
-        <div className="relative z-0 w-full mb-5 group">
-          <input
-            type="number"
-            name="managerId"
-            id="managerId"
-            value={projectData.managerId}
-            onChange={handleChange}
-            required
-            className="block py-2.5 px-0 w-full text-sm text-gray-900 bg-transparent border-0 border-b-2 border-gray-300 focus:outline-none focus:ring-0 focus:border-blue-600 peer"
-            placeholder=" "
-          />
-          <label
-            htmlFor="managerId"
-            className="peer-focus:font-medium absolute text-sm text-gray-500 transform -translate-y-6 scale-75 top-3 -z-10"
-          >
-            Manager ID
           </label>
         </div>
 

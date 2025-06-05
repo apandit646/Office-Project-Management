@@ -49,12 +49,14 @@ exports.loginUser = async (req, res) => {
 
   try {
     const user = await User.findOne({ where: { email, password } });
+
+    console.log('User found:', user);
     if (user) {
       if (user.type !== 'manager') {
         return res.status(403).json({ error: 'Access denied. Only managers can log in.' });
       }
       jwt.sign(
-        { userId: user.id, email: user.email },
+        { userId: user.id, email: user.email, id: user.id, type: user.type, role: user.role },
         secretKey,
         { algorithm, expiresIn: '10h' },
         (err, token) => {
@@ -65,13 +67,13 @@ exports.loginUser = async (req, res) => {
 
           res.status(200).json({
             message: 'Login successful',
-            user: {
-              id: user.id,
-              name: user.name,
-              email: user.email,
-              phoneNo: user.phoneNo,
-              type: user.type,
-              role: user.role
+            data: {
+              id: user.dataValues.id,
+              name: user.dataValues.name,
+              email: user.dataValues.email,
+              phoneNo: user.dataValues.phoneNo,
+              type: user.dataValues.type,
+              role: user.dataValues.role
             },
             token
           });

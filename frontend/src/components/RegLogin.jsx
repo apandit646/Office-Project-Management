@@ -77,19 +77,6 @@ const RegLogin = ({ setIsLoggedIn }) => {
     };
 
     try {
-      // Simulate API call for demo - replace with actual API
-      await new Promise((resolve) => setTimeout(resolve, 1500));
-
-      // Mock successful response for demo
-      const mockResult = {
-        token: "mock-jwt-token-" + Date.now(),
-        user: {
-          id: "user-123",
-          email: formData.email,
-          name: "Demo User",
-        },
-      };
-
       // For actual implementation, uncomment below:
       const response = await fetch(`${root}/api/users/login`, {
         method: "POST",
@@ -108,10 +95,10 @@ const RegLogin = ({ setIsLoggedIn }) => {
 
       // Store auth data (Note: localStorage not available in artifacts)
       localStorage.setItem("token", result.token);
-      localStorage.setItem("UserId", result.user.id);
+      localStorage.setItem("UserId", result.data.id);
 
       // For demo, we'll just simulate successful login
-      console.log("Login successful:", mockResult);
+      console.log("Login successful:", result);
 
       if (setIsLoggedIn) {
         setIsLoggedIn(true);

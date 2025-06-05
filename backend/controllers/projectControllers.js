@@ -1,3 +1,96 @@
+const { INTEGER } = require('sequelize');
+const sequelize = require('../db/config'); // Assuming you have a Sequelize instance set up
+const Project = require('../model/projectModel'); // Import your Project model
+
+
+
+exports.registerProject = async (req, res) => {
+    console.log('Registering project:', req.body);
+    let { projectName, clientName, startDate, endDate, status, description } = req.body;
+
+
+    const managerId = Number(req.user.id);
+    console.log('Manager ID:', managerId);
+
+    if (!req.user || !req.user.id) {
+        return res.status(401).json({ error: 'Unauthorized: manager ID missing' });
+    }
+
+    if (!projectName || !clientName || !startDate || !endDate || !managerId || !status) {
+        return res.status(400).json({ error: 'All fields are required' });
+    }
+
+
+    try {
+        const newProject = await Project.create({
+            projectName,
+            clientName,
+            startDate,
+            endDate,
+            status,
+            description,
+            managerId,
+        });
+
+        res.status(201).json({
+            message: 'Project registered successfully',
+            projectId: newProject.id,
+        });
+    } catch (err) {
+        console.error('Error registering project:', err);
+        res.status(500).json({ error: err.message });
+    }
+};
+
+exports.getProjects = async (req, res) => {
+    const managerId = req.user.id;
+    console.log('Fetching projects for manager ID:', managerId);
+    if (!managerId) {
+        return res.status(400).json({ error: 'Manager ID is required' });
+    }
+    try {
+        const projects = await Project.findAll({
+            where: { managerId },
+        });
+        if (projects.length > 0) {
+            console.log('Projects fetched successfully');
+            return res.status(200).json(projects);
+        } else {
+            return res.status(404).json({ message: 'No projects found for this manager' });
+        }
+    }
+    catch (err) {
+        console.error('Error fetching projects:', err);
+        return res.status(500).json({ error: 'Internal server error' });
+    }
+};
+
+exports.deleteProject = async (req, res) => {
+    const projectId = req.params.id;
+    const managerId = req.user.id; // Assuming user ID is stored in req.user after authentication
+    console.log('Deleting project ID:', projectId, 'for manager ID:', managerId);
+    if (!projectId || !managerId) {
+        return res.status(400).json({ error: 'Project ID and Manager ID are required' });
+    }
+    try {
+        const result = await Project.destroy({
+            where: {
+                id: projectId,
+                managerId: managerId,
+            },
+        });
+        if (result > 0) {
+            console.log('Project deleted successfully');
+            return res.status(200).json({ message: 'Project deleted successfully' });
+        } else {
+            return res.status(404).json({ error: 'Project not found or you do not have permission to delete it' });
+        }
+    }
+    catch (err) {
+        console.error('Error deleting project:', err);
+        return res.status(500).json({ error: 'Internal server error' });
+    }
+};
 
 
 // const projectTable = () => {

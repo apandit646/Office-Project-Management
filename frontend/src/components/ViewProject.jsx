@@ -1,28 +1,63 @@
-import React from "react";
+import React, { useCallback, useState } from "react";
 
 const ViewProject = () => {
-  const projects = [
-    {
-      id: 1,
-      projectName: "Inventory System",
-      clientName: "Acme Corp",
-      startDate: "2025-05-01",
-      endDate: "2025-06-15",
-      status: "ongoing",
-      description: "Web-based inventory management",
-      managerId: 102,
-    },
-    {
-      id: 2,
-      projectName: "E-commerce Platform",
-      clientName: "ShopNow",
-      startDate: "2025-04-20",
-      endDate: "2025-07-01",
-      status: "completed",
-      description: "Online shopping website with admin panel",
-      managerId: 101,
-    },
-  ];
+  const [projects, setProjects] = useState([]);
+  const fetchProjects = useCallback(async () => {
+    try {
+      const response = await fetch(
+        "http://localhost:3000/api/project/getProjects",
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        }
+      );
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.error || "Failed to fetch projects");
+      }
+      // Assuming data is an array of projects
+      if (!Array.isArray(data)) {
+        throw new Error("Invalid data format received from server");
+      }
+      // Update state with fetched projects
+      setProjects(data);
+    } catch (error) {
+      console.error("Error fetching projects:", error);
+    }
+  }, []);
+
+  useState(() => {
+    // Fetch projects from the server
+    fetchProjects();
+  }, []);
+
+  const deleteProject = useCallback(async (projectId) => {
+    try {
+      const response = await fetch(
+        `http://localhost:3000/api/project/deleteProject/${projectId}`,
+        {
+          method: "DELETE",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        }
+      );
+      const data = await response.json();
+      if (!response.ok) {
+        throw new Error(data.error || "Failed to delete project");
+      }
+      // Remove the deleted project from the state
+      setProjects((prevProjects) =>
+        prevProjects.filter((project) => project.id !== projectId)
+      );
+    } catch (error) {
+      console.error("Error deleting project:", error);
+    }
+  }, []);
 
   return (
     <div className="p-4">
@@ -62,7 +97,10 @@ const ViewProject = () => {
                   <button className="px-3 py-1 text-xs font-medium bg-blue-500 text-white rounded hover:bg-blue-600 transition">
                     View Members
                   </button>
-                  <button className="px-3 py-1 text-xs font-medium bg-red-500 text-white rounded hover:bg-red-600 transition">
+                  <button
+                    onClick={deleteProject(project.id)}
+                    className="px-3 py-1 text-xs font-medium bg-red-500 text-white rounded hover:bg-red-600 transition"
+                  >
                     Delete
                   </button>
                 </td>

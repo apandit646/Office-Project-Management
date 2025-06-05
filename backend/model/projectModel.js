@@ -1,6 +1,6 @@
 // models/Project.js
 const { DataTypes } = require('sequelize');
-const sequelize = require('../db'); // your Sequelize instance
+const sequelize = require('../db/config'); // your Sequelize instance
 
 const Project = sequelize.define('Project', {
     id: {
@@ -12,6 +12,7 @@ const Project = sequelize.define('Project', {
     projectName: {
         type: DataTypes.STRING,
         allowNull: false,
+        required: true,
     },
 
     clientName: {
@@ -21,12 +22,12 @@ const Project = sequelize.define('Project', {
     },
 
     startDate: {
-        type: DataTypes.DATEONLY,
+        type: DataTypes.STRING,
         allowNull: false,
     },
 
     endDate: {
-        type: DataTypes.DATEONLY,
+        type: DataTypes.STRING,
         allowNull: false,
     },
 
@@ -40,13 +41,13 @@ const Project = sequelize.define('Project', {
     },
 
     managerId: {
-        type: DataTypes.INTEGER,
+        type: DataTypes.INTEGER, // ✅ not STRING
         allowNull: false,
         references: {
-            model: 'users', // references the 'users' table
+            model: 'users',
             key: 'id',
         },
-    },
+    }
 }, {
     tableName: 'project_table', // match original table name
     timestamps: false, // disable createdAt and updatedAt

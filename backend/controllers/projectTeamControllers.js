@@ -1,3 +1,17 @@
+const sequelize = require('../db/config'); // Assuming you have a Sequelize instance set up
+
+
+
+
+
+
+
+
+
+
+
+
+
 // const sequlize = require('../db/config');
 
 // const projectTeam = () => {
