@@ -8,11 +8,32 @@ export const SideNavbar = () => {
           <a href="/" className="hover:text-yellow-400">
             Home
           </a>
-          <a href="#" className="hover:text-yellow-400">
-            Users
+          <a href="/regEmployee" className="hover:text-yellow-400">
+            Add Employee
           </a>
-          <a href="#" className="hover:text-yellow-400">
-            Settings
+          <a href="/addProject" className="hover:text-yellow-400">
+            Add Project
+          </a>
+          <a href="/viewEmployee" className="hover:text-yellow-400">
+            View Employee
+          </a>
+          <a href="/viewProject" className="hover:text-yellow-400">
+            View Project
+          </a>
+          <a href="/viewTask" className="hover:text-yellow-400">
+            View Task
+          </a>
+          <a href="/viewTaskStatus" className="hover:text-yellow-400">
+            View Task Status
+          </a>
+          <a href="/viewProjectStatus" className="hover:text-yellow-400">
+            View Project Status
+          </a>
+          <a href="/viewEmployeeTask" className="hover:text-yellow-400">
+            View Employee Task
+          </a>
+          <a href="/viewProjectTask" className="hover:text-yellow-400">
+            Profile
           </a>
           <a href="#" className="hover:text-yellow-400">
             Logout

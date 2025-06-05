@@ -6,11 +6,14 @@ import HomeManager from "./components/HomeManager";
 import ResLogin from "./components/RegLogin";
 import RegManager from "./components/RegManager";
 import { SideNavbar } from "./common/SideNavbar";
+import { RegEmployee } from "./components/RegEmployee";
+import { AddProject } from "./components/addProject";
+import ViewProject from "./components/ViewProject";
+import ViewEmployee from "./components/ViewEmployee";
 
 function App() {
   const getToken = () => localStorage.getItem("token");
   const [isLoggedIn, setIsLoggedIn] = useState(() => !!getToken());
-
   const checkAuth = useCallback(() => {
     setIsLoggedIn(!!getToken());
   }, []);
@@ -33,6 +36,10 @@ function App() {
             <div className="flex-1 bg-gray-100 p-6">
               <Routes>
                 <Route path="/home" element={<HomeManager />} />
+                <Route path="/regEmployee" element={<RegEmployee />} />
+                <Route path="/addProject" element={<AddProject />} />
+                <Route path="/viewProject" element={<ViewProject />} />
+                <Route path="/viewEmployee" element={<ViewEmployee />} />
                 <Route path="*" element={<Navigate to="/home" replace />} />
               </Routes>
             </div>

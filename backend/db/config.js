@@ -1,23 +1,19 @@
-const mysql = require('mysql2');
+// db.js (Sequelize setup for MySQL)
+const { Sequelize } = require('sequelize');
 
-const db = mysql.createConnection({
+const sequelize = new Sequelize('projectmanagement', 'root', 'root', {
     host: 'localhost',
-    user: 'root',
-    password: 'root',
-    database: 'projectmanagement',
-    port: 3306, // Default MySQL port
-    multipleStatements: true // Allows executing multiple SQL statements in one query
-
+    dialect: 'mysql',
+    port: 3306,
 });
 
+sequelize
+    .authenticate()
+    .then(() => {
+        console.log('✅ Connected to MySQL via Sequelize');
+    })
+    .catch((err) => {
+        console.error('❌ Unable to connect:', err);
+    });
 
-db.connect((err) => {
-    if (err) {
-        console.error('Error connecting to the database:', err);
-        return;
-    }
-    console.log('Connected to the database');
-});
-
-
-module.exports = db;
+module.exports = sequelize;
