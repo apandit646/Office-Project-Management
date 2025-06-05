@@ -1,7 +1,5 @@
 const HomeManager = () => {
-  return (
-    <div>HomeManager</div>
-  )
-}
+  return <div>HomeManager</div>;
+};
 
-export default HomeManager
+export default HomeManager;
