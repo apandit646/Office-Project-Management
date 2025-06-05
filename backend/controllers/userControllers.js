@@ -4,7 +4,7 @@ const sequelize = require('../db/config'); // Assuming you have a Sequelize inst
 const User = require('../model/userModel');
 const algorithm = 'HS256';
 const secretKey = crypto.createHash('sha256').update(String('your-secret-key')).digest('base64').substr(0, 32);
-const iv = crypto.createHash('sha256').update(String('your-fixed-iv')).digest('base64').substr(0, 16);
+
 
 exports.registerUser = async (req, res) => {
   console.log('Registering user:', req.body);
