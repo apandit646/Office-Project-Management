@@ -1,26 +1,42 @@
-import React from "react";
+import { useEffect, useState, useCallback } from "react";
 
 const ViewEmployee = () => {
-  const users = [
-    {
-      id: 1,
-      name: "John Doe",
-      email: "john@example.com",
-      phoneNo: "9876543210",
-      type: "employee",
-      password: "hashed_password_1",
-      role: "backend developer",
-    },
-    {
-      id: 2,
-      name: "Jane Smith",
-      email: "jane@example.com",
-      phoneNo: "9123456780",
-      type: "manager",
-      password: "hashed_password_2",
-      role: "frontend developer",
-    },
-  ];
+  const [users, setUsers] = useState([]);
+
+  const getAllEmployeesData = useCallback(async () => {
+    try {
+      const response = await fetch(
+        "http://localhost:3000/api/employee/getAllEmployees",
+        {
+          method: "GET",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+        }
+      );
+
+      if (!response.ok) {
+        throw new Error("Failed to fetch employees");
+      }
+
+      const data = await response.json();
+      console.log("Fetched employees:", data);
+      setUsers(data);
+
+      if (data.length === 0) {
+        console.log("No employees found");
+      } else {
+        console.log("Employees data:", data);
+      }
+    } catch (error) {
+      console.error("Error fetching employees:", error);
+    }
+  }, []);
+
+  useEffect(() => {
+    getAllEmployeesData();
+  }, [getAllEmployeesData]);
 
   return (
     <div className="p-4">
@@ -34,7 +50,6 @@ const ViewEmployee = () => {
               <th className="px-6 py-3">Phone No</th>
               <th className="px-6 py-3">Type</th>
               <th className="px-6 py-3">Role</th>
-              <th className="px-6 py-3">Password</th>
               <th className="px-6 py-3 text-center">Actions</th>
             </tr>
           </thead>
@@ -50,7 +65,6 @@ const ViewEmployee = () => {
                 <td className="px-6 py-4">{user.phoneNo}</td>
                 <td className="px-6 py-4 capitalize">{user.type}</td>
                 <td className="px-6 py-4 capitalize">{user.role}</td>
-                <td className="px-6 py-4">{user.password}</td>
                 <td className="px-6 py-4 flex flex-wrap gap-2 justify-center">
                   <button className="px-3 py-1 text-xs font-medium bg-green-500 text-white rounded hover:bg-green-600 transition">
                     Edit
@@ -65,7 +79,7 @@ const ViewEmployee = () => {
         </table>
       </div>
 
-      {/* Pagination */}
+      {/* Static Pagination UI */}
       <div className="flex justify-center mt-6">
         <ul className="inline-flex items-center -space-x-px text-sm">
           <li>
@@ -87,10 +101,7 @@ const ViewEmployee = () => {
             </li>
           ))}
           <li>
-            <a
-              href="#"
-              className="px-3 py-2 leading-tight text-gray-500 bg-white border border-gray-300 rounded-r-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
-            >
+            <a className="px-3 py-2 leading-tight text-gray-500 bg-white border border-gray-300 rounded-r-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">
               &raquo;
             </a>
           </li>
