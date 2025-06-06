@@ -19,11 +19,6 @@ const RegiesterNavbar = ({ setIsLoggedIn }) => {
 
   const navItems = [
     { icon: <Home className="w-5 h-5" />, label: "Login", link: "/" },
-    {
-      icon: <Home className="w-5 h-5" />,
-      label: "Register",
-      link: "/register",
-    },
   ];
 
   // Floating background elements

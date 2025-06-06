@@ -1,15 +1,15 @@
 import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 import { useCallback, useEffect, useState } from "react";
 import ManagerInterfaceNavbar from "./common/ManagerInterfaceNavbar";
-import RegisterNavbar from "./common/RegiesterNavbar"; // Typo fixed
-import HomeManager from "./components/HomeManager";
+import RegisterNavbar from "./common/RegiesterNavbar";
+import HomeEmployee from "./components/HomeEmployee";
 import ResLogin from "./components/RegLogin";
+
+import { SideNavbar } from "./common/SideNavbar";
 
 function App() {
   const getToken = () => localStorage.getItem("token");
-
   const [isLoggedIn, setIsLoggedIn] = useState(() => !!getToken());
-
   const checkAuth = useCallback(() => {
     setIsLoggedIn(!!getToken());
   }, []);
@@ -22,28 +22,32 @@ function App() {
   return (
     <BrowserRouter>
       {isLoggedIn ? (
-        <ManagerInterfaceNavbar setIsLoggedIn={setIsLoggedIn} />
+        <>
+          <ManagerInterfaceNavbar setIsLoggedIn={setIsLoggedIn} />
+          <div className="flex min-h-screen">
+            {/* Static Side Navbar */}
+            <SideNavbar setIsLoggedIn={setIsLoggedIn} />
+            {/* Main content area for routes */}
+            <div className="flex-1 bg-gray-100 p-6">
+              <Routes>
+                <Route path="/home" element={<HomeEmployee />} />
+              </Routes>
+            </div>
+          </div>
+        </>
       ) : (
-        <RegisterNavbar setIsLoggedIn={setIsLoggedIn} />
-      )}
-
-      <Routes>
-        {isLoggedIn ? (
-          <>
-            <Route path="/home" element={<HomeManager />} />
-            <Route path="*" element={<Navigate to="/home" replace />} />
-          </>
-        ) : (
-          <>
+        <>
+          <RegisterNavbar setIsLoggedIn={setIsLoggedIn} />
+          <Routes>
             <Route
               path="/"
               element={<ResLogin setIsLoggedIn={setIsLoggedIn} />}
             />
 
             <Route path="*" element={<Navigate to="/" replace />} />
-          </>
-        )}
-      </Routes>
+          </Routes>
+        </>
+      )}
     </BrowserRouter>
   );
 }

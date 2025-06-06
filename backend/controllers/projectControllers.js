@@ -92,6 +92,73 @@ exports.deleteProject = async (req, res) => {
     }
 };
 
+exports.updateProject = async (req, res) => {
+    const projectId = req.params.id;
+    const managerId = req.user.id; // Assuming user ID is stored in req.user after authentication
+    const { projectName, clientName, startDate, endDate, status, description } = req.body;
+    console.log('Updating project ID:', projectId, 'for manager ID:', managerId);
+    if (!projectId || !managerId) {
+        return res.status(400).json({ error: 'Project ID and Manager ID are required' });
+    }
+    try {
+        const [updated] = await Project.update(
+            {
+                projectName,
+                clientName,
+                startDate,
+                endDate,
+                status,
+                description,
+            },
+            {
+                where: {
+                    id: projectId,
+                    managerId: managerId,
+                },
+            }
+        );
+        if (updated) {
+            console.log('Project updated successfully');
+            return res.status(200).json({ message: 'Project updated successfully' });
+        } else {
+            return res.status(404).json({ error: 'Project not found or you do not have permission to update it' });
+        }
+    }
+    catch (err) {
+        console.error('Error updating project:', err);
+        return res.status(500).json({ error: 'Internal server error' });
+    }
+};
+
+//get project details by project ID
+exports.getProjectDetails = async (req, res) => {
+    const projectId = req.params.id;
+    const managerId = req.user.id; // Assuming user ID is stored in req.user after authentication
+    console.log('Fetching project details for project ID:', projectId, 'and manager ID:', managerId);
+    if (!projectId || !managerId) {
+        return res.status(400).json({ error: 'Project ID and Manager ID are required' });
+    }
+    try {
+        const project = await Project.findOne({
+            where: {
+                id: projectId,
+                managerId: managerId,
+            },
+        });
+        if (project) {
+            console.log('Project details fetched successfully');
+            return res.status(200).json(project);
+        } else {
+            return res.status(404).json({ error: 'Project not found or you do not have permission to view it' });
+        }
+    }
+    catch (err) {
+        console.error('Error fetching project details:', err);
+        return res.status(500).json({ error: 'Internal server error' });
+    }
+};
+
+
 
 // const projectTable = () => {
 //     return new Promise((resolve, reject) => {
