@@ -1,46 +1,11 @@
 import React, { useCallback, useEffect, useState } from "react";
-import ReactPaginate from "react-paginate";
+import ReactPaginate from "react-paginate"; // assuming it's being used
 
 const ViewProject = () => {
   const [projects, setProjects] = useState([]);
   const [currentPage, setCurrentPage] = useState(0);
   const [totalCount, setTotalCount] = useState(0);
-  const [addmemberpop, setaddmemberpop] = useState(false);
-  const [selectedItems, setSelectedItems] = useState([]);
-  const [employees, setEmployees] = useState([]);
   const ITEMS_PER_PAGE = 5;
-
-  const getAllEmployeesData = useCallback(async () => {
-    try {
-      const response = await fetch(
-        `http://localhost:3000/api/employee/getAllEmployeeData`,
-        {
-          method: "GET",
-          headers: {
-            "Content-Type": "application/json",
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-          },
-        }
-      );
-
-      if (!response.ok) {
-        throw new Error("Failed to fetch employees");
-      }
-
-      const data = await response.json();
-      console.log("<<<<<<<<<<<<<<<<<<", data, "<<<<<<<", currentPage);
-
-      // Expecting: { employees: [...], total: number }
-      setEmployees(data.data || []);
-    } catch (error) {
-      console.error("Error fetching employees:", error);
-    }
-  }, [currentPage]);
-
-  const addemployeesfun = useCallback(() => {
-    setaddmemberpop(true);
-    getAllEmployeesData();
-  }, [getAllEmployeesData]);
 
   const pageCount = Math.ceil(totalCount / ITEMS_PER_PAGE);
 
@@ -63,10 +28,15 @@ const ViewProject = () => {
         }
       );
       const data = await response.json();
-      if (!response.ok)
+      console.log(data);
+
+      if (!response.ok) {
         throw new Error(data.error || "Failed to fetch projects.");
-      if (!Array.isArray(data.rows))
+      }
+
+      if (!Array.isArray(data.rows)) {
         throw new Error("Unexpected response format from server.");
+      }
 
       setProjects(data.rows);
       setTotalCount(data.count);
@@ -81,9 +51,6 @@ const ViewProject = () => {
 
   const deleteProject = useCallback(async (projectId) => {
     try {
-      if (!window.confirm("Are you sure you want to delete this project?"))
-        return;
-
       const response = await fetch(
         `http://localhost:3000/api/project/deleteProject/${projectId}`,
         {
@@ -95,8 +62,10 @@ const ViewProject = () => {
         }
       );
       const data = await response.json();
-      if (!response.ok)
+
+      if (!response.ok) {
         throw new Error(data.error || "Failed to delete project.");
+      }
 
       setProjects((prevProjects) =>
         prevProjects.filter((project) => project.id !== projectId)
@@ -105,32 +74,6 @@ const ViewProject = () => {
       console.error("Error deleting project:", error.message);
     }
   }, []);
-
-  const handleSelect = (id, role) => {
-    setSelectedItems((prev) => {
-      const exists = prev.some((item) => item.id === id && item.role === role);
-      if (exists) {
-        return prev.filter((item) => !(item.id === id && item.role === role));
-      } else {
-        return [...prev, { id, role }];
-      }
-    });
-  };
-
-  const handleSubmit = useCallback(async () => {
-    console.log("Selected Employee IDs:", selectedItems);
-    await fetch(`http://localhost:3000/api/project/setprojEmployee`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${localStorage.getItem("token")}`,
-      },
-      body: JSON.stringify(selectedItems),
-    });
-
-    setSelectedItems([]);
-    setaddmemberpop(false);
-  }, [selectedItems]);
 
   return (
     <div className="p-4">
@@ -158,20 +101,13 @@ const ViewProject = () => {
                 <td className="px-6 py-4">{project.id}</td>
                 <td className="px-6 py-4">{project.projectName}</td>
                 <td className="px-6 py-4">{project.clientName}</td>
-                <td className="px-6 py-4">
-                  {new Date(project.startDate).toLocaleDateString()}
-                </td>
-                <td className="px-6 py-4">
-                  {new Date(project.endDate).toLocaleDateString()}
-                </td>
+                <td className="px-6 py-4">{project.startDate}</td>
+                <td className="px-6 py-4">{project.endDate}</td>
                 <td className="px-6 py-4 capitalize">{project.status}</td>
                 <td className="px-6 py-4">{project.description}</td>
                 <td className="px-6 py-4">{project.managerId}</td>
                 <td className="px-6 py-4 flex flex-wrap gap-2 justify-center">
-                  <button
-                    onClick={() => addemployeesfun()}
-                    className="px-3 py-1 text-xs font-medium bg-green-500 text-white rounded hover:bg-green-600 transition"
-                  >
+                  <button className="px-3 py-1 text-xs font-medium bg-green-500 text-white rounded hover:bg-green-600 transition">
                     Add Member
                   </button>
                   <button className="px-3 py-1 text-xs font-medium bg-blue-500 text-white rounded hover:bg-blue-600 transition">
@@ -189,66 +125,6 @@ const ViewProject = () => {
           </tbody>
         </table>
       </div>
-
-      {/* Add Member Modal */}
-      {addmemberpop && (
-        <div className="p-6 bg-white rounded-lg shadow-md max-w-md w-full mt-6 mx-auto border border-gray-300 relative">
-          <button
-            onClick={() => setaddmemberpop(false)}
-            className="absolute top-2 right-2 text-gray-500 hover:text-red-500"
-          >
-            ✖
-          </button>
-          <h2 className="text-lg font-semibold mb-4">Select Employees</h2>
-
-          <div className="space-y-3 max-h-64 overflow-y-auto">
-            {employees.map((emp) => {
-              const isSelected = selectedItems.some(
-                (item) => item.id === emp.id && item.role === emp.role
-              );
-
-              return (
-                <div
-                  key={emp.id}
-                  className="flex justify-between items-center border border-gray-200 rounded-lg p-3"
-                >
-                  <div>
-                    <p className="text-sm font-medium text-gray-800">
-                      {emp.name}
-                    </p>
-                    <p className="text-xs text-gray-500">ID: {emp.id}</p>
-                  </div>
-                  <button
-                    onClick={() => handleSelect(emp.id, emp.role)}
-                    className={`text-sm px-3 py-1 rounded-lg ${
-                      isSelected
-                        ? "bg-blue-600 text-white"
-                        : "bg-gray-200 text-gray-700"
-                    }`}
-                  >
-                    {isSelected ? "Selected" : "Select"}
-                  </button>
-                </div>
-              );
-            })}
-          </div>
-
-          <div className="mt-4 flex justify-end gap-3">
-            <button
-              onClick={() => setaddmemberpop(false)}
-              className="bg-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-400"
-            >
-              Cancel
-            </button>
-            <button
-              onClick={handleSubmit}
-              className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
-            >
-              Submit
-            </button>
-          </div>
-        </div>
-      )}
 
       {/* Pagination */}
       <div className="flex justify-center mt-6">

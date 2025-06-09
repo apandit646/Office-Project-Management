@@ -6,6 +6,7 @@ import HomeEmployee from "./components/HomeEmployee";
 import ResLogin from "./components/RegLogin";
 
 import { SideNavbar } from "./common/SideNavbar";
+import ViewProject from "./components/ViewProject";
 
 function App() {
   const getToken = () => localStorage.getItem("token");
@@ -30,7 +31,8 @@ function App() {
             {/* Main content area for routes */}
             <div className="flex-1 bg-gray-100 p-6">
               <Routes>
-                <Route path="/home" element={<HomeEmployee />} />
+                <Route path="/home" element={<HomeEmployee />}></Route>,
+                <Route path="/viewProject" element={<ViewProject />}></Route>
               </Routes>
             </div>
           </div>

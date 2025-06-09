@@ -1,6 +1,7 @@
 const { INTEGER } = require('sequelize');
 const sequelize = require('../db/config'); // Assuming you have a Sequelize instance set up
 const Project = require('../model/projectModel'); // Import your Project model
+const ProjectTeam = require('../model/projectTeamModel')
 
 
 
@@ -167,6 +168,40 @@ exports.getProjectDetails = async (req, res) => {
         return res.status(500).json({ error: 'Internal server error' });
     }
 };
+
+// Set project members
+exports.setprojectMember = async (req, res) => {
+    const data = req.body;
+    const managerId = req.user.id;
+
+    console.log("data", data, "managerId", managerId);
+
+
+
+    try {
+        await sequelize.sync();
+        for (const item of data) {
+            console.log(item);
+            const regdata = await ProjectTeam.create({
+                projectId: parseInt(item.id),
+                memberId: parseInt(managerId),
+                role: item.role
+            });
+
+            if (!regdata) {
+                // You can choose to throw or just skip/fail silently
+                return res.status(400).json({ message: "Failed to assign one or more members" });
+            }
+        }
+
+        res.status(200).json({ message: "All members assigned successfully" });
+
+    } catch (error) {
+        console.error("Error assigning project members:", error);
+        res.status(500).json({ message: "Internal server error" });
+    }
+};
+
 
 
 

@@ -7,6 +7,8 @@ const { authenticateToken } = require('../auth/auth');
 router.post('/loginEmployee', employeeController.loginEmployee);
 router.post('/registerEmployee', employeeController.registerEmployee);
 router.get('/getAllEmployees', authenticateToken, employeeController.getAllEmployees);
+router.get('/getAllEmployeeData',authenticateToken,employeeController.getAllEmployeesData )
+
 
 
 module.exports = router;
