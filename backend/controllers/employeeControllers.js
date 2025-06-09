@@ -2,6 +2,7 @@ const jwt = require('jsonwebtoken');
 const crypto = require('crypto');
 const sequelize = require('../db/config'); // Assuming you have a Sequelize instance set up
 const User = require('../model/userModel');
+const { error } = require('console');
 const algorithm = 'HS256';
 const secretKey = crypto.createHash('sha256').update(String('your-secret-key')).digest('base64').substr(0, 32);
 
@@ -91,20 +92,26 @@ exports.loginEmployee = async (req, res) => {
 
 // get employ from user 
 exports.getAllEmployees = async (req, res) => {
-    console.log('Fetching all employees');
     try {
-        const users = await User.findAll({
+        const { offset = 0, limit = 10 } = req.query;
+
+        const data = await User.findAndCountAll({
             where: { type: 'employee' },
-            attributes: ['id', 'name', 'email', 'phoneNo', 'type', 'role']
+            offset: parseInt(offset),
+            limit: parseInt(limit),
+            order: [['id', 'ASC']]
         });
 
-        if (users.length === 0) {
-            return res.status(404).json({ message: 'No employees found' });
+        if (!data) {
+            return res.status(500).json({ error: "Data not found" });
         }
 
-        res.status(200).json(users);
+        res.status(200).json({
+            employees: data.rows,
+            total: data.count
+        });
     } catch (err) {
-        console.error('Error fetching employees:', err);
-        res.status(500).json({ error: 'Internal server error' });
+        console.error("Error in getAllEmployees:", err);
+        res.status(500).json({ error: "Internal server error" });
     }
-}
+};

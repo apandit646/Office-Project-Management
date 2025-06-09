@@ -50,7 +50,7 @@ exports.getProjects = async (req, res) => {
     }
     try {
         const projects = await Project.findAll({
-            where: { managerId },
+            where: { managerId }
         });
         if (projects.length > 0) {
             console.log('Projects fetched successfully');

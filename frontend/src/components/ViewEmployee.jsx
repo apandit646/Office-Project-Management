@@ -1,12 +1,23 @@
 import { useEffect, useState, useCallback } from "react";
+import ReactPaginate from "react-paginate";
+
+const ITEMS_PER_PAGE = 5;
 
 const ViewEmployee = () => {
   const [users, setUsers] = useState([]);
+  const [currentPage, setCurrentPage] = useState(0);
+  const [pageCount, setpageCount] = useState(0);
+
+  const handlePageClick = useCallback(({ selected }) => {
+    setCurrentPage(selected);
+  }, []);
 
   const getAllEmployeesData = useCallback(async () => {
     try {
       const response = await fetch(
-        "http://localhost:3000/api/employee/getAllEmployees",
+        `http://localhost:3000/api/employee/getAllEmployees?offset=${
+          currentPage * ITEMS_PER_PAGE
+        }&limit=${ITEMS_PER_PAGE}`,
         {
           method: "GET",
           headers: {
@@ -21,18 +32,15 @@ const ViewEmployee = () => {
       }
 
       const data = await response.json();
-      console.log("Fetched employees:", data);
-      setUsers(data);
+      console.log("<<<<<<<<<<<<<<<<<<", data, "<<<<<<<", currentPage);
 
-      if (data.length === 0) {
-        console.log("No employees found");
-      } else {
-        console.log("Employees data:", data);
-      }
+      // Expecting: { employees: [...], total: number }
+      setUsers(data.employees || []);
+      setpageCount(data.total || 0);
     } catch (error) {
       console.error("Error fetching employees:", error);
     }
-  }, []);
+  }, [currentPage]);
 
   useEffect(() => {
     getAllEmployeesData();
@@ -79,33 +87,29 @@ const ViewEmployee = () => {
         </table>
       </div>
 
-      {/* Static Pagination UI */}
+      {/* Pagination */}
       <div className="flex justify-center mt-6">
-        <ul className="inline-flex items-center -space-x-px text-sm">
-          <li>
-            <a className="px-3 py-2 ml-0 leading-tight text-gray-500 bg-white border border-gray-300 rounded-l-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">
-              &laquo;
-            </a>
-          </li>
-          {[1, 2, 3, 4, 5].map((page) => (
-            <li key={page}>
-              <a
-                className={`px-3 py-2 leading-tight ${
-                  page === 1
-                    ? "text-white bg-blue-600 border-blue-600"
-                    : "text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
-                }`}
-              >
-                {page}
-              </a>
-            </li>
-          ))}
-          <li>
-            <a className="px-3 py-2 leading-tight text-gray-500 bg-white border border-gray-300 rounded-r-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">
-              &raquo;
-            </a>
-          </li>
-        </ul>
+        <ReactPaginate
+          previousLabel={"«"}
+          nextLabel={"»"}
+          breakLabel={"..."}
+          pageCount={pageCount}
+          marginPagesDisplayed={1}
+          pageRangeDisplayed={2}
+          onPageChange={handlePageClick}
+          containerClassName={"inline-flex items-center space-x-2 text-sm"}
+          pageClassName={
+            "px-3 py-2 leading-tight bg-white border border-gray-300 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 hover:bg-gray-100 hover:text-gray-700 dark:hover:bg-gray-700 dark:hover:text-white"
+          }
+          activeClassName={"text-white bg-blue-600 border-blue-600"}
+          previousClassName={
+            "px-3 py-2 bg-white border border-gray-300 rounded-l-lg hover:bg-gray-100"
+          }
+          nextClassName={
+            "px-3 py-2 bg-white border border-gray-300 rounded-r-lg hover:bg-gray-100"
+          }
+          disabledClassName={"opacity-50 cursor-not-allowed"}
+        />
       </div>
     </div>
   );
