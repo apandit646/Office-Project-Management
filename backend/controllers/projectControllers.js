@@ -43,27 +43,37 @@ exports.registerProject = async (req, res) => {
 };
 
 exports.getProjects = async (req, res) => {
-    const managerId = req.user.id;
-    console.log('Fetching projects for manager ID:', managerId);
-    if (!managerId) {
-        return res.status(400).json({ error: 'Manager ID is required' });
-    }
     try {
-        const projects = await Project.findAll({
-            where: { managerId }
-        });
-        if (projects.length > 0) {
-            console.log('Projects fetched successfully');
-            return res.status(200).json(projects);
-        } else {
-            return res.status(404).json({ message: 'No projects found for this manager' });
+        console.log("hello")
+        const { offset = 0, limit = 10 } = req.query;
+        console.log("<<<<<<<<<< offset:", offset, ">>>>>>>>>>>>>> limit:", limit);
+
+
+        if (offset === undefined || limit === undefined) {
+            return res.status(400).json({ error: "Offset or limit parameter is missing." });
         }
-    }
-    catch (err) {
-        console.error('Error fetching projects:', err);
-        return res.status(500).json({ error: 'Internal server error' });
+
+        const data = await Project.findAndCountAll({
+            where: {
+                managerId: req.user.id, // Assuming you get managerId from authenticated user
+            },
+            offset: parseInt(offset),
+            limit: parseInt(limit),
+            order: [['id', 'ASC']],
+        });
+
+        if (!data) {
+            return res.status(404).json({ message: "No projects found." });
+        }
+
+        return res.status(200).json(data);
+
+    } catch (err) {
+        console.error("Error fetching projects:", err);
+        return res.status(500).json({ error: "Internal server error." });
     }
 };
+
 
 exports.deleteProject = async (req, res) => {
     const projectId = req.params.id;

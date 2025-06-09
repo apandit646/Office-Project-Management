@@ -1,11 +1,24 @@
-import React, { useCallback, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
+import ReactPaginate from "react-paginate"; // assuming it's being used
 
 const ViewProject = () => {
   const [projects, setProjects] = useState([]);
+  const [currentPage, setCurrentPage] = useState(0);
+  const [totalCount, setTotalCount] = useState(0);
+  const ITEMS_PER_PAGE = 5;
+
+  const pageCount = Math.ceil(totalCount / ITEMS_PER_PAGE);
+
+  const handlePageClick = useCallback(({ selected }) => {
+    setCurrentPage(selected);
+  }, []);
+
   const fetchProjects = useCallback(async () => {
     try {
       const response = await fetch(
-        "http://localhost:3000/api/project/getProjects",
+        `http://localhost:3000/api/project/getProjects?offset=${
+          currentPage * ITEMS_PER_PAGE
+        }&limit=${ITEMS_PER_PAGE}`,
         {
           method: "GET",
           headers: {
@@ -15,24 +28,26 @@ const ViewProject = () => {
         }
       );
       const data = await response.json();
-      if (!response.ok) {
-        throw new Error(data.error || "Failed to fetch projects");
-      }
-      // Assuming data is an array of projects
-      if (!Array.isArray(data)) {
-        throw new Error("Invalid data format received from server");
-      }
-      // Update state with fetched projects
-      setProjects(data);
-    } catch (error) {
-      console.error("Error fetching projects:", error);
-    }
-  }, []);
+      console.log(data);
 
-  useState(() => {
-    // Fetch projects from the server
+      if (!response.ok) {
+        throw new Error(data.error || "Failed to fetch projects.");
+      }
+
+      if (!Array.isArray(data.rows)) {
+        throw new Error("Unexpected response format from server.");
+      }
+
+      setProjects(data.rows);
+      setTotalCount(data.count);
+    } catch (error) {
+      console.error("Error fetching projects:", error.message);
+    }
+  }, [currentPage]);
+
+  useEffect(() => {
     fetchProjects();
-  }, []);
+  }, [fetchProjects]);
 
   const deleteProject = useCallback(async (projectId) => {
     try {
@@ -47,15 +62,16 @@ const ViewProject = () => {
         }
       );
       const data = await response.json();
+
       if (!response.ok) {
-        throw new Error(data.error || "Failed to delete project");
+        throw new Error(data.error || "Failed to delete project.");
       }
-      // Remove the deleted project from the state
+
       setProjects((prevProjects) =>
         prevProjects.filter((project) => project.id !== projectId)
       );
     } catch (error) {
-      console.error("Error deleting project:", error);
+      console.error("Error deleting project:", error.message);
     }
   }, []);
 
@@ -98,7 +114,7 @@ const ViewProject = () => {
                     View Members
                   </button>
                   <button
-                    onClick={deleteProject(project.id)}
+                    onClick={() => deleteProject(project.id)}
                     className="px-3 py-1 text-xs font-medium bg-red-500 text-white rounded hover:bg-red-600 transition"
                   >
                     Delete
@@ -112,34 +128,27 @@ const ViewProject = () => {
 
       {/* Pagination */}
       <div className="flex justify-center mt-6">
-        <ul className="inline-flex items-center -space-x-px text-sm">
-          <li>
-            <a className="px-3 py-2 ml-0 leading-tight text-gray-500 bg-white border border-gray-300 rounded-l-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white">
-              &laquo;
-            </a>
-          </li>
-          {[1, 2, 3, 4, 5].map((page) => (
-            <li key={page}>
-              <a
-                className={`px-3 py-2 leading-tight ${
-                  page === 1
-                    ? "text-white bg-blue-600 border-blue-600"
-                    : "text-gray-500 bg-white border border-gray-300 hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
-                }`}
-              >
-                {page}
-              </a>
-            </li>
-          ))}
-          <li>
-            <a
-              href="#"
-              className="px-3 py-2 leading-tight text-gray-500 bg-white border border-gray-300 rounded-r-lg hover:bg-gray-100 hover:text-gray-700 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
-            >
-              &raquo;
-            </a>
-          </li>
-        </ul>
+        <ReactPaginate
+          previousLabel={"«"}
+          nextLabel={"»"}
+          breakLabel={"..."}
+          pageCount={pageCount}
+          marginPagesDisplayed={1}
+          pageRangeDisplayed={2}
+          onPageChange={handlePageClick}
+          containerClassName={"inline-flex items-center space-x-2 text-sm"}
+          pageClassName={
+            "px-3 py-2 leading-tight bg-white border border-gray-300 dark:bg-gray-800 dark:border-gray-700 dark:text-gray-400 hover:bg-gray-100 hover:text-gray-700 dark:hover:bg-gray-700 dark:hover:text-white"
+          }
+          activeClassName={"text-white bg-blue-600 border-blue-600"}
+          previousClassName={
+            "px-3 py-2 bg-white border border-gray-300 rounded-l-lg hover:bg-gray-100"
+          }
+          nextClassName={
+            "px-3 py-2 bg-white border border-gray-300 rounded-r-lg hover:bg-gray-100"
+          }
+          disabledClassName={"opacity-50 cursor-not-allowed"}
+        />
       </div>
     </div>
   );
