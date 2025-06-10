@@ -42,7 +42,7 @@ exports.getAllEmployeesData = async (req, res) => {
     try {
         const data = await User.findAll({
             where: {
-                type: "manager" // Fixed spelling if "manager" was intended
+                type: "employee" // Fixed spelling if "manager" was intended
             }
         });
 

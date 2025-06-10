@@ -20,24 +20,6 @@ export const SideNavbar = () => {
           <a href="/viewProject" className="hover:text-yellow-400">
             View Project
           </a>
-          <a href="/viewTask" className="hover:text-yellow-400">
-            View Task
-          </a>
-          <a href="/viewTaskStatus" className="hover:text-yellow-400">
-            View Task Status
-          </a>
-          <a href="/viewProjectStatus" className="hover:text-yellow-400">
-            View Project Status
-          </a>
-          <a href="/viewEmployeeTask" className="hover:text-yellow-400">
-            View Employee Task
-          </a>
-          <a href="/viewProjectTask" className="hover:text-yellow-400">
-            Profile
-          </a>
-          <a href="#" className="hover:text-yellow-400">
-            Logout
-          </a>
         </nav>
       </div>
     </div>
