@@ -59,7 +59,7 @@ exports.loginUser = async (req, res) => {
       jwt.sign(
         { userId: user.id, email: user.email, id: user.id, type: user.type, role: user.role },
         secretKey,
-        { algorithm, expiresIn: '10h' },
+        { algorithm, expiresIn:       '10h' },
         (err, token) => {
           if (err) {
             console.error('Error generating token:', err);
